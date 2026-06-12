@@ -11,6 +11,7 @@ extern "C" void app_main() {
     }
     ESP_ERROR_CHECK(ret);
 
+    esp_log_level_set("NimBLE", ESP_LOG_WARN);
     ESP_LOGI("MAIN", "Starting Application...");
 
     // Create and start the application orchestrator
