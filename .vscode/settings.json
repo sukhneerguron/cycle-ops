@@ -14,5 +14,6 @@
     "--background-index",
     "--query-driver=**",
     "--compile-commands-dir=/Users/thearchitect/sample_project/build"
-  ]
+  ],
+  "idf.flashType": "JTAG"
 }
