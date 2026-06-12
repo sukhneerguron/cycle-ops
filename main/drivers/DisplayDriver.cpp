@@ -1,0 +1,116 @@
+#include "DisplayDriver.hpp"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "hal/gpio_types.h"
+#include "esp_lcd_io_i2c.h"
+
+namespace drivers {
+
+static const char* TAG = "DisplayDriver";
+
+DisplayDriver::DisplayDriver() {
+    mutex_ = xSemaphoreCreateRecursiveMutex();
+}
+
+DisplayDriver::~DisplayDriver() {
+    if (mutex_) {
+        vSemaphoreDelete(mutex_);
+    }
+}
+
+void DisplayDriver::init(i2c_master_bus_handle_t i2c_bus) {
+    if (initialized_) return;
+
+    ESP_LOGI(TAG, "Initializing SSD1306 Panel");
+    
+    esp_lcd_panel_io_i2c_config_t io_config = {};
+    io_config.dev_addr = 0x3C; // Default I2C address for SSD1306
+    io_config.control_phase_bytes = 1;
+    io_config.lcd_cmd_bits = 8;
+    io_config.lcd_param_bits = 8;
+    io_config.dc_bit_offset = 6;
+    io_config.scl_speed_hz = 400000;
+
+    // Use the provided I2C bus handle with the correct v6.0 API
+    esp_err_t err = esp_lcd_new_panel_io_i2c(i2c_bus, &io_config, &io_handle_);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create panel IO");
+        return;
+    }
+
+    esp_lcd_panel_dev_config_t panel_config = {};
+    panel_config.reset_gpio_num = GPIO_NUM_NC; // No reset pin
+    panel_config.bits_per_pixel = 1;
+
+    err = esp_lcd_new_panel_ssd1306(io_handle_, &panel_config, &panel_handle_);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create SSD1306 panel");
+        return;
+    }
+
+    err = esp_lcd_panel_reset(panel_handle_);
+    err = esp_lcd_panel_init(panel_handle_);
+    err = esp_lcd_panel_disp_on_off(panel_handle_, true);
+
+    ESP_LOGI(TAG, "Initializing LVGL");
+    lv_init();
+
+    lv_display_ = lv_display_create(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    lv_display_set_user_data(lv_display_, panel_handle_);
+    lv_display_set_flush_cb(lv_display_, flush_callback);
+    
+    // Allocate buffer for 1-bit monochrome display
+    // Buffer size = width * height / 8
+    size_t buf_size = DISPLAY_WIDTH * DISPLAY_HEIGHT / 8;
+    void *buf1 = heap_caps_malloc(buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    void *buf2 = heap_caps_malloc(buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    
+    lv_display_set_buffers(lv_display_, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
+
+    // Set up tick timer
+    const esp_timer_create_args_t tick_timer_args = {
+        .callback = &lv_tick_task,
+        .arg = NULL,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "lvgl_tick",
+        .skip_unhandled_events = false
+    };
+    esp_timer_handle_t tick_timer;
+    esp_timer_create(&tick_timer_args, &tick_timer);
+    esp_timer_start_periodic(tick_timer, 2 * 1000); // 2 ms
+
+    xTaskCreate(lvgl_port_task, "lvgl_task", 4096, this, 5, &lvgl_task_handle_);
+
+    initialized_ = true;
+}
+
+void DisplayDriver::lv_tick_task(void *arg) {
+    lv_tick_inc(2);
+}
+
+void DisplayDriver::lvgl_port_task(void *arg) {
+    auto* driver = static_cast<DisplayDriver*>(arg);
+    while (true) {
+        driver->lock();
+        uint32_t task_delay = lv_timer_handler();
+        driver->unlock();
+        if (task_delay > 500) {
+            task_delay = 500;
+        }
+        vTaskDelay(pdMS_TO_TICKS(task_delay));
+    }
+}
+
+void DisplayDriver::flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map) {
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) lv_display_get_user_data(disp);
+    int offsetx1 = area->x1;
+    int offsetx2 = area->x2;
+    int offsety1 = area->y1;
+    int offsety2 = area->y2;
+    
+    // For 1-bit color depth, we just pass the buffer down.
+    esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
+    lv_display_flush_ready(disp);
+}
+
+} // namespace drivers

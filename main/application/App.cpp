@@ -11,7 +11,8 @@ App* App::s_instance = nullptr;
 
 App::App() 
     : cadence_service_(&ride_model_, nullptr), 
-      ble_consumer_(&ride_model_) {
+      ble_consumer_(&ride_model_),
+      display_consumer_(ride_model_, display_driver_) {
     s_instance = this;
     
     // Create the queue for timestamp events from ISR to CadenceService
@@ -28,10 +29,16 @@ void App::start() {
     ESP_LOGI(TAG, "Starting services...");
     cadence_service_.start();
 
+    ESP_LOGI(TAG, "Starting consumers...");
+    display_consumer_.start();
+
     // BLEConsumer will be started when NimBLE host is synced (via on_ble_sync)
 }
 
 void App::setup_hardware() {
+    i2c_driver_.init();
+    display_driver_.init(i2c_driver_.get_bus_handle());
+    
     drivers::GPIODriver::init(sensor_queue_);
     drivers::BLEDriver::init("Cycle-Ops", 
         [this]() { ble_consumer_.init_services(); },

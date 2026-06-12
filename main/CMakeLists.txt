@@ -13,9 +13,12 @@ idf_component_register(
     SRCS "main.cpp"
          "application/App.cpp"
          "consumers/BLEConsumer.cpp"
+         "consumers/DisplayConsumer.cpp"
          "drivers/BLEDriver.cpp"
          "drivers/GPIODriver.cpp"
+         "drivers/I2CDriver.cpp"
+         "drivers/DisplayDriver.cpp"
          "services/CadenceService.cpp"
     INCLUDE_DIRS ${include_dirs}
-    REQUIRES esp_timer driver esp_driver_gpio bt nvs_flash
+    REQUIRES esp_timer driver esp_driver_gpio bt nvs_flash esp_lcd
 )

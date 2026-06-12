@@ -7,6 +7,9 @@
 #include "models/RideModel.hpp"
 #include "services/CadenceService.hpp"
 #include "consumers/BLEConsumer.hpp"
+#include "drivers/I2CDriver.hpp"
+#include "drivers/DisplayDriver.hpp"
+#include "consumers/DisplayConsumer.hpp"
 
 namespace application {
 
@@ -29,6 +32,10 @@ private:
 
     services::CadenceService cadence_service_;
     consumers::BLEConsumer ble_consumer_;
+    
+    drivers::I2CDriver i2c_driver_;
+    drivers::DisplayDriver display_driver_;
+    consumers::DisplayConsumer display_consumer_;
 };
 
 } // namespace application
