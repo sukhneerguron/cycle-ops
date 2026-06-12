@@ -58,14 +58,15 @@ void DisplayDriver::init(i2c_master_bus_handle_t i2c_bus) {
     lv_display_ = lv_display_create(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     lv_display_set_user_data(lv_display_, panel_handle_);
     lv_display_set_flush_cb(lv_display_, flush_callback);
+    lv_display_set_color_format(lv_display_, LV_COLOR_FORMAT_RGB565);
     
-    // Allocate buffer for 1-bit monochrome display
-    // Buffer size = width * height / 8
-    size_t buf_size = DISPLAY_WIDTH * DISPLAY_HEIGHT / 8;
+    // Allocate buffer for 16-bit RGB565 display full-screen rendering
+    // Buffer size = width * height * 2 bytes (16-bit)
+    size_t buf_size = DISPLAY_WIDTH * DISPLAY_HEIGHT * 2;
     void *buf1 = heap_caps_malloc(buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     void *buf2 = heap_caps_malloc(buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     
-    lv_display_set_buffers(lv_display_, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(lv_display_, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_FULL);
 
     // Set up tick timer
     const esp_timer_create_args_t tick_timer_args = {
@@ -103,13 +104,35 @@ void DisplayDriver::lvgl_port_task(void *arg) {
 
 void DisplayDriver::flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map) {
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) lv_display_get_user_data(disp);
-    int offsetx1 = area->x1;
-    int offsetx2 = area->x2;
-    int offsety1 = area->y1;
-    int offsety2 = area->y2;
+    int width = area->x2 - area->x1 + 1;
+    int height = area->y2 - area->y1 + 1;
     
-    // For 1-bit color depth, we just pass the buffer down.
-    esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
+    // Ensure we are processing a full screen flush
+    if (width != DISPLAY_WIDTH || height != DISPLAY_HEIGHT) {
+        lv_display_flush_ready(disp);
+        return;
+    }
+
+    // Allocate a temporary buffer for the 1-bit SSD1306 format (1024 bytes)
+    static uint8_t ssd1306_buf[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+    memset(ssd1306_buf, 0, sizeof(ssd1306_buf));
+
+    uint16_t *rgb_buf = (uint16_t *)px_map;
+
+    // Convert RGB565 horizontal layout to SSD1306 vertical page layout
+    for (int y = 0; y < DISPLAY_HEIGHT; y++) {
+        for (int x = 0; x < DISPLAY_WIDTH; x++) {
+            uint16_t color = rgb_buf[y * DISPLAY_WIDTH + x];
+            // If color is not completely black (0x0000), set the bit in the monochrome buffer
+            if (color != 0x0000) {
+                // byte index = x + (y / 8) * DISPLAY_WIDTH
+                // bit index = y % 8
+                ssd1306_buf[x + (y / 8) * DISPLAY_WIDTH] |= (1 << (y % 8));
+            }
+        }
+    }
+
+    esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, ssd1306_buf);
     lv_display_flush_ready(disp);
 }
 
