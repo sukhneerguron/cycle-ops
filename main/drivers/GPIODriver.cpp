@@ -24,7 +24,7 @@ void IRAM_ATTR GPIODriver::gpio_isr_handler(void* arg) {
     if (gpio_num == PIN_CADENCE) {
         event.sensor_id = common::SENSOR_ID_CADENCE;
     } else if (gpio_num == PIN_RPM) {
-        event.sensor_id = common::SENSOR_ID_RPM;
+        event.sensor_id = common::SENSOR_ID_WHEEL;
     } else {
         return;
     }

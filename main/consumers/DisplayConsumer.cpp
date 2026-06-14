@@ -52,7 +52,7 @@ void DisplayConsumer::update_ui() {
     models::RideData data = ride_model_.get();
 
     display_driver_.lock();
-    if (rpm_label_) lv_label_set_text_fmt(rpm_label_, "RPM: %u", data.current_rpm);
+    if (rpm_label_) lv_label_set_text_fmt(rpm_label_, "WHL RPM: %u", data.current_wheel_rpm);
     if (cadence_label_) lv_label_set_text_fmt(cadence_label_, "Cad: %u", data.current_cadence);
     if (revs_label_) lv_label_set_text_fmt(revs_label_, "Revs: %lu", (unsigned long)data.total_wheel_revolutions);
     display_driver_.unlock();

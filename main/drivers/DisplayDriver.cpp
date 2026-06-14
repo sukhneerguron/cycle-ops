@@ -51,6 +51,7 @@ void DisplayDriver::init(i2c_master_bus_handle_t i2c_bus) {
     err = esp_lcd_panel_reset(panel_handle_);
     err = esp_lcd_panel_init(panel_handle_);
     err = esp_lcd_panel_disp_on_off(panel_handle_, true);
+    err = esp_lcd_panel_mirror(panel_handle_, true, true); // Flip 180 degrees
 
     ESP_LOGI(TAG, "Initializing LVGL");
     lv_init();

@@ -10,6 +10,6 @@ struct SensorTimestamp {
 
 // IDs for the reed sensors
 constexpr uint8_t SENSOR_ID_CADENCE = 0;
-constexpr uint8_t SENSOR_ID_RPM = 1;
+constexpr uint8_t SENSOR_ID_WHEEL = 1;
 
 } // namespace common
