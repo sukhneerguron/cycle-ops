@@ -5,11 +5,11 @@
 #include "common/Types.hpp"
 #include "events/EventBus.hpp"
 #include "models/RideModel.hpp"
-#include "services/CadenceService.hpp"
-#include "consumers/BLEConsumer.hpp"
+#include "services/cadence/CadenceService.hpp"
+#include "consumers/ble/BLEConsumer.hpp"
 #include "drivers/I2CDriver.hpp"
 #include "drivers/DisplayDriver.hpp"
-#include "consumers/DisplayConsumer.hpp"
+#include "consumers/display/DisplayConsumer.hpp"
 
 namespace application {
 

@@ -503,6 +503,8 @@ common/
 
 tests/
 
+Within each layer folder, group related files by feature into subdirectories (e.g., `consumers/ble/`, `services/cadence/`).
+
 No feature should become a dumping ground.
 
 Small focused modules are preferred.
