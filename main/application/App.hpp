@@ -10,6 +10,7 @@
 #include "drivers/I2CDriver.hpp"
 #include "drivers/SPIDriver.hpp"
 #include "drivers/DisplayDriver.hpp"
+#include "drivers/TouchDriver.hpp"
 #include "ui/DisplayTask.hpp"
 
 namespace application {
@@ -37,6 +38,7 @@ private:
     drivers::I2CDriver i2c_driver_;
     drivers::SPIDriver spi_driver_;
     drivers::DisplayDriver display_driver_;
+    drivers::TouchDriver touch_driver_;
     ui::DisplayTask display_task_;
 };
 

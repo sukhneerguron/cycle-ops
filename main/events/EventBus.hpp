@@ -11,6 +11,7 @@ public:
     static constexpr EventBits_t BLE_CONNECTED    = BIT2;
     static constexpr EventBits_t BLE_DISCONNECTED = BIT3;
     static constexpr EventBits_t RIDE_DATA_UPDATED = BIT4;
+    static constexpr EventBits_t TOUCH_INTERRUPT  = BIT5;
 
     EventBus() {
         event_group_ = xEventGroupCreate();
@@ -24,6 +25,14 @@ public:
 
     void publish(EventBits_t bitsToSet) {
         xEventGroupSetBits(event_group_, bitsToSet);
+    }
+
+    void publishFromISR(EventBits_t bitsToSet) {
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        xEventGroupSetBitsFromISR(event_group_, bitsToSet, &xHigherPriorityTaskWoken);
+        if (xHigherPriorityTaskWoken) {
+            portYIELD_FROM_ISR();
+        }
     }
 
     void clear(EventBits_t bitsToClear) {

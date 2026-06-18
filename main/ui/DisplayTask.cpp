@@ -41,6 +41,9 @@ void DisplayTask::task_entry(void* arg) {
 }
 
 void DisplayTask::run() {
+    constexpr EventBits_t kWakeEvents = 
+        events::EventBus::RIDE_DATA_UPDATED | events::EventBus::TOUCH_INTERRUPT;
+
     while (true) {
         // Run LVGL timers / render cycle under the lock
         driver_.lock();
@@ -52,11 +55,16 @@ void DisplayTask::run() {
             next_delay_ms = 10;
         }
 
-        // Wait for new ride data — block for at most next_delay_ms
+        // Wait for new ride data or touch interrupt — block for at most next_delay_ms
         EventBits_t bits = event_bus_.waitAny(
-            events::EventBus::RIDE_DATA_UPDATED,
+            kWakeEvents,
             pdMS_TO_TICKS(next_delay_ms)
         );
+
+        if (bits & events::EventBus::TOUCH_INTERRUPT) {
+            event_bus_.clear(events::EventBus::TOUCH_INTERRUPT);
+            // LVGL will call the touch read_cb on next lv_timer_handler() iteration
+        }
 
         if (bits & events::EventBus::RIDE_DATA_UPDATED) {
             event_bus_.clear(events::EventBus::RIDE_DATA_UPDATED);

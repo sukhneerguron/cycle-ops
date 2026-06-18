@@ -26,6 +26,8 @@ public:
         if (mutex_) xSemaphoreGiveRecursive(mutex_);
     }
 
+    lv_display_t* get_lv_display() const { return lv_display_; }
+
 private:
     static void lv_tick_task(void *arg);
     static void flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
