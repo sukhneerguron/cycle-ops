@@ -17,6 +17,7 @@ idf_component_register(
          "drivers/BLEDriver.cpp"
          "drivers/GPIODriver.cpp"
          "drivers/I2CDriver.cpp"
+         "drivers/SPIDriver.cpp"
          "drivers/DisplayDriver.cpp"
          "services/cadence/CadenceService.cpp"
          "ui/DisplayTask.cpp"
