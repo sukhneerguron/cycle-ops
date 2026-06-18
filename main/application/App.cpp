@@ -37,7 +37,8 @@ void App::start() {
 
 void App::setup_hardware() {
     i2c_driver_.init();
-    display_driver_.init(i2c_driver_.get_bus_handle());
+    spi_driver_.init();
+    display_driver_.init(spi_driver_.get_host());
     
     drivers::GPIODriver::init(sensor_queue_);
     drivers::BLEDriver::init("Cycle-Ops", 

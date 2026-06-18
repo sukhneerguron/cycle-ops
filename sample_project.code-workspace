@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../blink"
+		},
+		{
+			"path": "../work/cycle/esp32-s3-touch-lcd-2"
+		},
+		{
+			"path": "../work/cycle/esp-idf-st7789"
 		}
 	],
 	"settings": {
