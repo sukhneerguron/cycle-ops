@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../blink"
+		}
+	],
+	"settings": {
+		"clangd.arguments": [
+			"--background-index",
+			"--query-driver=**",
+			"--compile-commands-dir=/Users/thearchitect/sample_project/build"
+		]
+	}
+}

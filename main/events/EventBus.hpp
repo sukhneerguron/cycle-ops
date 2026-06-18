@@ -10,6 +10,7 @@ public:
     static constexpr EventBits_t RIDE_STOPPED     = BIT1;
     static constexpr EventBits_t BLE_CONNECTED    = BIT2;
     static constexpr EventBits_t BLE_DISCONNECTED = BIT3;
+    static constexpr EventBits_t RIDE_DATA_UPDATED = BIT4;
 
     EventBus() {
         event_group_ = xEventGroupCreate();

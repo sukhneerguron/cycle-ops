@@ -28,7 +28,6 @@ public:
 
 private:
     static void lv_tick_task(void *arg);
-    static void lvgl_port_task(void *arg);
     static void flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
 
     esp_lcd_panel_io_handle_t io_handle_{nullptr};
@@ -36,7 +35,6 @@ private:
     lv_display_t *lv_display_{nullptr};
     
     SemaphoreHandle_t mutex_{nullptr};
-    TaskHandle_t lvgl_task_handle_{nullptr};
     
     static constexpr int DISPLAY_WIDTH = 128;
     static constexpr int DISPLAY_HEIGHT = 64;

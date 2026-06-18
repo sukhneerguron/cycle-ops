@@ -10,16 +10,16 @@ static const char* TAG = "App";
 App* App::s_instance = nullptr;
 
 App::App() 
-    : cadence_service_(&ride_model_, nullptr), 
+    : cadence_service_(&ride_model_, nullptr, &event_bus_), 
       ble_consumer_(&ride_model_),
-      display_consumer_(ride_model_, display_driver_) {
+      display_task_(display_driver_, ride_model_, event_bus_) {
     s_instance = this;
     
     // Create the queue for timestamp events from ISR to CadenceService
     sensor_queue_ = xQueueCreate(100, sizeof(common::SensorTimestamp));
     
-    // Re-initialize CadenceService with the valid queue
-    cadence_service_ = services::CadenceService(&ride_model_, sensor_queue_);
+    // Re-initialise CadenceService with the valid queue
+    cadence_service_ = services::CadenceService(&ride_model_, sensor_queue_, &event_bus_);
 }
 
 void App::start() {
@@ -30,7 +30,7 @@ void App::start() {
     cadence_service_.start();
 
     ESP_LOGI(TAG, "Starting consumers...");
-    display_consumer_.start();
+    display_task_.start();
 
     // BLEConsumer will be started when NimBLE host is synced (via on_ble_sync)
 }
