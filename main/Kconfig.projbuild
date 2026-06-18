@@ -40,4 +40,12 @@ config DISPLAY_HEIGHT
     int "Display Height"
     default 320
 
+config TOUCH_INT
+    int "Touch Interrupt Pin"
+    default 5
+
+config TOUCH_RST
+    int "Touch Reset Pin"
+    default 4
+
 endmenu
