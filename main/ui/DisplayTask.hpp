@@ -6,10 +6,8 @@
 #include "models/RideModel.hpp"
 #include "drivers/DisplayDriver.hpp"
 #include "drivers/TouchDriver.hpp"
-
-// Forward declare to avoid circular includes
-namespace ui { class SpeedWidget; }
-namespace ui { class CadenceWidget; }
+#include "ui/components/SpeedWidget.hpp"
+#include "ui/components/CadenceWidget.hpp"
 
 namespace ui {
 
@@ -21,11 +19,9 @@ namespace ui {
 ///     keeping Services entirely decoupled from LVGL.
 ///
 /// The Driver owns hardware. DisplayTask owns the LVGL runtime.
+/// Widgets are statically owned — no heap allocation.
 class DisplayTask {
 public:
-    /// @param driver      Hardware driver — provides lock()/unlock().
-    /// @param model       Read-only access to the latest ride snapshot.
-    /// @param event_bus   System event bus (RIDE_DATA_UPDATED, etc.).
     DisplayTask(drivers::DisplayDriver& driver,
                 drivers::TouchDriver& touch_driver,
                 models::RideModel& model,
@@ -46,9 +42,9 @@ private:
     TaskHandle_t            task_handle_{nullptr};
     lv_obj_t*               cursor_obj_{nullptr};
 
-    // Owned widget pointers — set during start() under the LVGL lock
-    SpeedWidget*   speed_widget_{nullptr};
-    CadenceWidget* cadence_widget_{nullptr};
+    // Statically owned widgets
+    SpeedWidget   speed_widget_;
+    CadenceWidget cadence_widget_;
 
     static constexpr uint32_t    kTaskStackDepth = 8192;
     static constexpr UBaseType_t kTaskPriority   = 4;

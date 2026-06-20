@@ -36,7 +36,7 @@ public:
         }
     }
 
-    // Multiple Readers (BLEConsumer, DisplayConsumer)
+    // Multiple Readers (BLEConsumer, DisplayTask)
     RideData get() const {
         RideData copy;
         if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE) {

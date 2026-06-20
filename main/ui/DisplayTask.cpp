@@ -1,7 +1,6 @@
 #include "DisplayTask.hpp"
 #include "ui/screens/RideScreen.hpp"
-#include "ui/components/SpeedWidget.hpp"
-#include "ui/components/CadenceWidget.hpp"
+#include "ui/theme/Colors.hpp"
 #include "lvgl.h"
 #include "esp_log.h"
 
@@ -27,15 +26,13 @@ void DisplayTask::start() {
 
     // Build the screen while holding the LVGL lock
     driver_.lock();
-    RideWidgets widgets = RideScreen::create();
-    speed_widget_   = widgets.speed;
-    cadence_widget_ = widgets.cadence;
+    RideScreen::create(speed_widget_, cadence_widget_);
 
     // Create touch cursor on the active screen
     lv_obj_t* cursor = lv_obj_create(lv_screen_active());
     lv_obj_set_size(cursor, 15, 15);
     lv_obj_set_style_radius(cursor, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_color(cursor, lv_color_hex(0x0000FF), 0); //B,R,G
+    lv_obj_set_style_bg_color(cursor, theme::Colors::Cursor(), 0);
     lv_obj_set_style_bg_opa(cursor, LV_OPA_70, 0);
     lv_obj_set_style_border_width(cursor, 0, 0);
     lv_obj_clear_flag(cursor, LV_OBJ_FLAG_CLICKABLE);
@@ -86,8 +83,8 @@ void DisplayTask::run() {
             models::RideData data = model_.get();
 
             driver_.lock();
-            if (speed_widget_)   speed_widget_->update(data);
-            if (cadence_widget_) cadence_widget_->update(data);
+            speed_widget_.update(data);
+            cadence_widget_.update(data);
             driver_.unlock();
         }
     }
