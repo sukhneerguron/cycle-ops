@@ -1,0 +1,9 @@
+services:
+  opencode:
+    image: ghcr.io/anomalyco/opencode:latest
+    container_name: espopencode
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Users/thearchitect/sample_project:/Users/thearchitect/sample_project
+    stdin_open: true
+    tty: true

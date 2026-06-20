@@ -8,8 +8,10 @@
 #include "services/cadence/CadenceService.hpp"
 #include "consumers/ble/BLEConsumer.hpp"
 #include "drivers/I2CDriver.hpp"
+#include "drivers/SPIDriver.hpp"
 #include "drivers/DisplayDriver.hpp"
-#include "consumers/display/DisplayConsumer.hpp"
+#include "drivers/TouchDriver.hpp"
+#include "ui/DisplayTask.hpp"
 
 namespace application {
 
@@ -32,10 +34,12 @@ private:
 
     services::CadenceService cadence_service_;
     consumers::BLEConsumer ble_consumer_;
-    
+
     drivers::I2CDriver i2c_driver_;
+    drivers::SPIDriver spi_driver_;
     drivers::DisplayDriver display_driver_;
-    consumers::DisplayConsumer display_consumer_;
+    drivers::TouchDriver touch_driver_;
+    ui::DisplayTask display_task_;
 };
 
 } // namespace application

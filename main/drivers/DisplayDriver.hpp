@@ -6,8 +6,8 @@
 #include "lvgl.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
-#include "esp_lcd_panel_ssd1306.h"
-#include "driver/i2c_master.h"
+#include "esp_lcd_panel_st7789.h"
+#include "driver/spi_master.h"
 
 namespace drivers {
 
@@ -16,7 +16,7 @@ public:
     DisplayDriver();
     ~DisplayDriver();
 
-    void init(i2c_master_bus_handle_t i2c_bus);
+    void init(spi_host_device_t spi_host);
     
     void lock() {
         if (mutex_) xSemaphoreTakeRecursive(mutex_, portMAX_DELAY);
@@ -26,9 +26,10 @@ public:
         if (mutex_) xSemaphoreGiveRecursive(mutex_);
     }
 
+    lv_display_t* get_lv_display() const { return lv_display_; }
+
 private:
     static void lv_tick_task(void *arg);
-    static void lvgl_port_task(void *arg);
     static void flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
 
     esp_lcd_panel_io_handle_t io_handle_{nullptr};
@@ -36,10 +37,9 @@ private:
     lv_display_t *lv_display_{nullptr};
     
     SemaphoreHandle_t mutex_{nullptr};
-    TaskHandle_t lvgl_task_handle_{nullptr};
     
-    static constexpr int DISPLAY_WIDTH = 128;
-    static constexpr int DISPLAY_HEIGHT = 64;
+    static constexpr int DISPLAY_WIDTH = 240;
+    static constexpr int DISPLAY_HEIGHT = 320;
     
     bool initialized_{false};
 };

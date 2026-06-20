@@ -8,8 +8,8 @@ namespace drivers {
 
 static const char* TAG = "GPIODriver";
 
-static constexpr gpio_num_t PIN_CADENCE = GPIO_NUM_9;
-static constexpr gpio_num_t PIN_RPM = GPIO_NUM_10;
+static constexpr gpio_num_t PIN_CADENCE = GPIO_NUM_1;
+static constexpr gpio_num_t PIN_RPM = GPIO_NUM_2;
 
 static QueueHandle_t s_timestamp_queue = nullptr;
 

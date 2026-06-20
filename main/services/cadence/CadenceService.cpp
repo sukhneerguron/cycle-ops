@@ -7,8 +7,8 @@ namespace services {
 
 static const char* TAG = "CadSVC";
 
-CadenceService::CadenceService(models::RideModel* model, QueueHandle_t queue)
-    : model_(model), queue_(queue) {
+CadenceService::CadenceService(models::RideModel* model, QueueHandle_t queue, events::EventBus* event_bus)
+    : model_(model), queue_(queue), event_bus_(event_bus) {
 }
 
 CadenceService::~CadenceService() {
@@ -77,6 +77,10 @@ void CadenceService::publish_model() {
     data.current_cadence = cadence_filter_.current_rpm();
     data.current_wheel_rpm = wheel_filter_.current_rpm();
 
+    // Speed: RPM * circumference (m) * 60 (min→hr) / 1000 (m→km)
+    data.current_speed_kph = static_cast<float>(data.current_wheel_rpm) *
+                             kWheelCircumferenceMeters * 60.0f / 1000.0f;
+
     // Cumulative revolutions — convert pulses to full revolutions
     // Integer division is correct: a partial rev doesn't count (per BLE CSC spec)
     data.total_crank_revolutions = total_crank_pulses_ / kCadenceFilterConfig.pulses_per_rev;
@@ -97,6 +101,11 @@ void CadenceService::publish_model() {
     }
 
     model_->update(data);
+
+    // Notify consumers (Display, BLE, etc.) that new data is available
+    if (event_bus_) {
+        event_bus_->publish(events::EventBus::RIDE_DATA_UPDATED);
+    }
 }
 
 } // namespace services

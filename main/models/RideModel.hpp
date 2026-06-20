@@ -7,6 +7,7 @@ namespace models {
 
 struct RideData {
     uint16_t current_wheel_rpm{0};
+    float current_speed_kph{0.0f};
     uint32_t total_wheel_revolutions{0};
     
     uint16_t current_cadence{0};

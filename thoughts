@@ -1,0 +1,9 @@
+BLE Task
+    |
+    +--> xQueueSend(update)
+
+UI Task
+    |
+    +--> xQueueReceive(...)
+            |
+            +--> lv_event_send(...)

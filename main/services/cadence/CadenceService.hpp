@@ -2,6 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "models/RideModel.hpp"
+#include "events/EventBus.hpp"
 #include "services/SensorFilter.hpp"
 
 namespace services {
@@ -32,11 +33,15 @@ static constexpr SensorFilterConfig kWheelFilterConfig = {
     .debounce_fraction = 0.40f,
 };
 
+/// 700c wheel circumference in meters (700x25c)
+static constexpr float kWheelCircumferenceMeters = 2.105f;
+
 class CadenceService {
 public:
-    /// @param model  The shared RideModel where we publish our calculations (single writer).
-    /// @param queue  The FreeRTOS queue where ISRs push common::SensorTimestamp events.
-    CadenceService(models::RideModel* model, QueueHandle_t queue);
+    /// @param model      The shared RideModel where we publish our calculations (single writer).
+    /// @param queue      The FreeRTOS queue where ISRs push common::SensorTimestamp events.
+    /// @param event_bus  The system EventBus for publishing data-updated notifications.
+    CadenceService(models::RideModel* model, QueueHandle_t queue, events::EventBus* event_bus = nullptr);
     ~CadenceService();
 
     void start();
@@ -49,6 +54,7 @@ private:
 
     models::RideModel* model_;
     QueueHandle_t queue_;
+    events::EventBus* event_bus_;
     TaskHandle_t task_handle_{nullptr};
 
     // --- Filter instances ---
