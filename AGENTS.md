@@ -415,6 +415,8 @@ Display never accesses ADC.
 
 Display should be replaceable without modifying Services.
 
+If you are working on lvgl based ui __then and only then__ refer to AGENTS.lvgl.md before solutionin.g 
+
 ---
 
 # BLE Rules

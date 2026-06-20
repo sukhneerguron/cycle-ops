@@ -207,17 +207,39 @@ Components never access Drivers.
 
 Updates are Event-Driven using a Publish-Subscribe (Pub/Sub) pattern.
 
-Widgets subscribe to specific messages (e.g., using LVGL's `lv_msg` or a system Event Bus) when they are created. 
+Widgets subscribe to specific messages when they are created. 
 When a Service updates a Model, a message is published, and the widget's callback is triggered by LVGL to update its own objects.
+LVGL 9 introduced `lv_subject_t` and `lv_observer_t` to natively replace `lv_msg`. This is a decoupled Pub/Sub system.
 
-Example:
+Because observer callbacks execute *immediately* when a subject is updated, **you must only update subjects while holding the LVGL lock**, otherwise the RTOS will crash. This is why DisplayTask exists, It is the only task allowed to update subjects.
 
 ```cpp
-void PowerWidget::onPowerUpdated(const PowerModel* model)
-{
-    // Update power labels and graphics based on new model data
+// 1. Define a shared subject (e.g., in a ModelStore)
+lv_subject_t ride_subject;
+lv_subject_init_pointer(&ride_subject, nullptr);
+
+// 2. Widget subscribes during creation
+lv_subject_add_observer_obj(&ride_subject, PowerWidget::onRideDataObserved, this->container, this);
+
+// 3. DisplayTask wakes up and updates the subject
+if (bits & RIDE_DATA_UPDATED) {
+    driver_.lock(); // Lock LVGL
+    lv_subject_set_pointer(&ride_subject, (void*)&RideService::getModel());
+    driver_.unlock();
+}
+
+// 4. Widget callback automatically fires (safely under lock)
+void PowerWidget::onRideDataObserved(lv_observer_t* observer, lv_subject_t* subject) {
+    PowerWidget* widget = (PowerWidget*)lv_observer_get_user_data(observer);
+    const RideModel* model = (const RideModel*)lv_subject_get_pointer(subject);
+    
+    if (model) {
+        lv_label_set_text_fmt(widget->valueLabel, "%d W", model->power);
+    }
 }
 ```
+
+### Critical Rules for Updates:
 
 Widgets should never calculate:
 
