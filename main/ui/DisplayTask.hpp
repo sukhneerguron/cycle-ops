@@ -8,6 +8,7 @@
 #include "drivers/TouchDriver.hpp"
 #include "ui/components/SpeedWidget.hpp"
 #include "ui/components/CadenceWidget.hpp"
+#include "lvgl.h"
 
 namespace ui {
 
@@ -45,6 +46,9 @@ private:
     // Statically owned widgets
     SpeedWidget   speed_widget_;
     CadenceWidget cadence_widget_;
+
+    lv_subject_t     ride_subject_;
+    models::RideData ride_data_;
 
     static constexpr uint32_t    kTaskStackDepth = 8192;
     static constexpr UBaseType_t kTaskPriority   = 4;

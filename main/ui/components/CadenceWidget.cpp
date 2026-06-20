@@ -6,7 +6,7 @@
 
 namespace ui {
 
-void CadenceWidget::create(lv_obj_t* parent) {
+void CadenceWidget::create(lv_obj_t* parent, lv_subject_t* ride_subject) {
     // Container — transparent, fills its allocated cell, flex column centred
     container_ = lv_obj_create(parent);
     lv_obj_set_size(container_, LV_PCT(100), LV_PCT(100));
@@ -32,12 +32,22 @@ void CadenceWidget::create(lv_obj_t* parent) {
     lv_label_set_text(unit_label_, "rpm");
     lv_obj_set_style_text_color(unit_label_, theme::Colors::SecondaryText(), 0);
     lv_obj_set_style_text_font(unit_label_, theme::Fonts::SmallLabel(), 0);
+
+    // Observe ride data
+    if (ride_subject) {
+        lv_subject_add_observer_obj(ride_subject, CadenceWidget::onRideDataObserved, container_, this);
+    }
 }
 
-void CadenceWidget::update(const models::RideData& data) {
-    char buf[8];
-    snprintf(buf, sizeof(buf), "%u", data.current_cadence);
-    lv_label_set_text(cadence_label_, buf);
+void CadenceWidget::onRideDataObserved(lv_observer_t* observer, lv_subject_t* subject) {
+    CadenceWidget* widget = static_cast<CadenceWidget*>(lv_observer_get_user_data(observer));
+    const models::RideData* data = static_cast<const models::RideData*>(lv_subject_get_pointer(subject));
+    
+    if (widget && data) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%u", data->current_cadence);
+        lv_label_set_text(widget->cadence_label_, buf);
+    }
 }
 
 } // namespace ui

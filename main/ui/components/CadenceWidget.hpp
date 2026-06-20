@@ -19,11 +19,10 @@ public:
 
     /// Build LVGL objects under the given parent.
     /// Must be called while the LVGL mutex is held.
-    void create(lv_obj_t* parent);
+    void create(lv_obj_t* parent, lv_subject_t* ride_subject);
 
-    /// Refresh the displayed value from a new model snapshot.
-    /// Must be called while the LVGL mutex is held.
-    void update(const models::RideData& data);
+    /// LVGL observer callback for ride data updates.
+    static void onRideDataObserved(lv_observer_t* observer, lv_subject_t* subject);
 
 private:
     lv_obj_t* container_{nullptr};

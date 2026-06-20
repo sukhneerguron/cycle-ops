@@ -24,9 +24,12 @@ DisplayTask::~DisplayTask() {
 void DisplayTask::start() {
     ESP_LOGI(TAG, "Building initial UI");
 
+    // Init subject BEFORE creating widgets
+    lv_subject_init_pointer(&ride_subject_, nullptr);
+
     // Build the screen while holding the LVGL lock
     driver_.lock();
-    RideScreen::create(speed_widget_, cadence_widget_);
+    RideScreen::create(speed_widget_, cadence_widget_, &ride_subject_);
 
     // Create touch cursor on the active screen
     lv_obj_t* cursor = lv_obj_create(lv_screen_active());
@@ -79,12 +82,11 @@ void DisplayTask::run() {
         if (bits & events::EventBus::RIDE_DATA_UPDATED) {
             event_bus_.clear(events::EventBus::RIDE_DATA_UPDATED);
 
-            // Snapshot the model and push to all widgets under the LVGL lock
-            models::RideData data = model_.get();
+            // Snapshot the model and push to all widgets via subject
+            ride_data_ = model_.get();
 
             driver_.lock();
-            speed_widget_.update(data);
-            cadence_widget_.update(data);
+            lv_subject_set_pointer(&ride_subject_, &ride_data_);
             driver_.unlock();
         }
     }

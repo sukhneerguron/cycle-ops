@@ -6,7 +6,7 @@
 
 namespace ui {
 
-void SpeedWidget::create(lv_obj_t* parent) {
+void SpeedWidget::create(lv_obj_t* parent, lv_subject_t* ride_subject) {
     // Container — transparent, fills the screen, flex column centred
     container_ = lv_obj_create(parent);
     lv_obj_set_size(container_, LV_PCT(100), LV_PCT(100));
@@ -32,12 +32,22 @@ void SpeedWidget::create(lv_obj_t* parent) {
     lv_label_set_text(unit_label_, "km/hr");
     lv_obj_set_style_text_color(unit_label_, theme::Colors::SecondaryText(), 0);
     lv_obj_set_style_text_font(unit_label_, theme::Fonts::SmallLabel(), 0);
+
+    // Observe ride data
+    if (ride_subject) {
+        lv_subject_add_observer_obj(ride_subject, SpeedWidget::onRideDataObserved, container_, this);
+    }
 }
 
-void SpeedWidget::update(const models::RideData& data) {
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%.1f", data.current_speed_kph);
-    lv_label_set_text(speed_label_, buf);
+void SpeedWidget::onRideDataObserved(lv_observer_t* observer, lv_subject_t* subject) {
+    SpeedWidget* widget = static_cast<SpeedWidget*>(lv_observer_get_user_data(observer));
+    const models::RideData* data = static_cast<const models::RideData*>(lv_subject_get_pointer(subject));
+    
+    if (widget && data) {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%.1f", data->current_speed_kph);
+        lv_label_set_text(widget->speed_label_, buf);
+    }
 }
 
 } // namespace ui

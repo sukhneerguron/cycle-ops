@@ -8,7 +8,7 @@ namespace ui {
 
 static const char* TAG = "RideScreen";
 
-void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence) {
+void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence, lv_subject_t* ride_subject) {
     ESP_LOGI(TAG, "Creating RideScreen");
 
     lv_obj_t* screen = lv_obj_create(nullptr);
@@ -52,8 +52,8 @@ void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence) {
     lv_obj_remove_flag(right_cell, LV_OBJ_FLAG_SCROLLABLE);
 
     // Build widgets inside their respective cells
-    speed.create(left_cell);
-    cadence.create(right_cell);
+    speed.create(left_cell, ride_subject);
+    cadence.create(right_cell, ride_subject);
 
     lv_screen_load(screen);
 }

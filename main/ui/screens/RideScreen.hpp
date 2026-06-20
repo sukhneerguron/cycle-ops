@@ -16,7 +16,7 @@ public:
     /// Build the screen and all child widgets, load it.
     /// Widgets are statically owned — caller passes references.
     /// Must be called while the LVGL mutex is held.
-    static void create(SpeedWidget& speed, CadenceWidget& cadence);
+    static void create(SpeedWidget& speed, CadenceWidget& cadence, lv_subject_t* ride_subject);
 
 private:
     RideScreen() = delete;
