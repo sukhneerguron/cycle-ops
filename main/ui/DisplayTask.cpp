@@ -10,9 +10,10 @@ namespace ui {
 static const char* TAG = "DisplayTask";
 
 DisplayTask::DisplayTask(drivers::DisplayDriver& driver,
+                         drivers::TouchDriver& touch_driver,
                          models::RideModel& model,
                          events::EventBus& event_bus)
-    : driver_(driver), model_(model), event_bus_(event_bus) {
+    : driver_(driver), touch_driver_(touch_driver), model_(model), event_bus_(event_bus) {
 }
 
 DisplayTask::~DisplayTask() {
@@ -29,6 +30,18 @@ void DisplayTask::start() {
     RideWidgets widgets = RideScreen::create();
     speed_widget_   = widgets.speed;
     cadence_widget_ = widgets.cadence;
+
+    // Create touch cursor on the active screen
+    lv_obj_t* cursor = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(cursor, 15, 15);
+    lv_obj_set_style_radius(cursor, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_color(cursor, lv_color_hex(0x0000FF), 0); //B,R,G
+    lv_obj_set_style_bg_opa(cursor, LV_OPA_70, 0);
+    lv_obj_set_style_border_width(cursor, 0, 0);
+    lv_obj_clear_flag(cursor, LV_OBJ_FLAG_CLICKABLE);
+    lv_indev_set_cursor(touch_driver_.get_indev(), cursor);
+    cursor_obj_ = cursor;
+
     driver_.unlock();
 
     ESP_LOGI(TAG, "Starting LVGL task");
@@ -63,7 +76,7 @@ void DisplayTask::run() {
 
         if (bits & events::EventBus::TOUCH_INTERRUPT) {
             event_bus_.clear(events::EventBus::TOUCH_INTERRUPT);
-            // LVGL will call the touch read_cb on next lv_timer_handler() iteration
+            // break out of waiting and let lv_timer_handler() wakeup and handle the touch
         }
 
         if (bits & events::EventBus::RIDE_DATA_UPDATED) {

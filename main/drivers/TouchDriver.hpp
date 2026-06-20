@@ -15,6 +15,7 @@ public:
     void init(i2c_master_bus_handle_t i2c_bus, events::EventBus& event_bus);
     
     void register_lvgl_indev(lv_display_t* disp);
+    lv_indev_t* get_indev() const { return indev_; }
 
 private:
     static void touch_interrupt_cb(esp_lcd_touch_handle_t tp);

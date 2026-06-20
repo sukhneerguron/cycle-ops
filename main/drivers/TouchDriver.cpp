@@ -80,16 +80,6 @@ void TouchDriver::register_lvgl_indev(lv_display_t* disp) {
     lv_indev_set_read_cb(indev_, lv_touch_read_cb);
     lv_indev_set_user_data(indev_, this);
     lv_indev_set_display(indev_, disp);
-
-    // Create a small circle as a visual touch cursor
-    // lv_obj_t* cursor_obj = lv_obj_create(lv_screen_active());
-    // lv_obj_set_size(cursor_obj, 15, 15);
-    // lv_obj_set_style_radius(cursor_obj, LV_RADIUS_CIRCLE, 0);
-    // lv_obj_set_style_bg_color(cursor_obj, lv_color_hex(0xFF4444), 0);
-    // lv_obj_set_style_bg_opa(cursor_obj, LV_OPA_70, 0);
-    // lv_obj_set_style_border_width(cursor_obj, 0, 0);
-    // lv_obj_clear_flag(cursor_obj, LV_OBJ_FLAG_CLICKABLE);
-    // lv_indev_set_cursor(indev_, cursor_obj);
 }
 
 void TouchDriver::touch_interrupt_cb(esp_lcd_touch_handle_t tp) {

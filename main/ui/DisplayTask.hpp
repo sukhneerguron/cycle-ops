@@ -5,6 +5,7 @@
 #include "events/EventBus.hpp"
 #include "models/RideModel.hpp"
 #include "drivers/DisplayDriver.hpp"
+#include "drivers/TouchDriver.hpp"
 
 // Forward declare to avoid circular includes
 namespace ui { class SpeedWidget; }
@@ -26,6 +27,7 @@ public:
     /// @param model       Read-only access to the latest ride snapshot.
     /// @param event_bus   System event bus (RIDE_DATA_UPDATED, etc.).
     DisplayTask(drivers::DisplayDriver& driver,
+                drivers::TouchDriver& touch_driver,
                 models::RideModel& model,
                 events::EventBus& event_bus);
     ~DisplayTask();
@@ -38,9 +40,11 @@ private:
     void run();
 
     drivers::DisplayDriver& driver_;
+    drivers::TouchDriver&   touch_driver_;
     models::RideModel&      model_;
     events::EventBus&       event_bus_;
     TaskHandle_t            task_handle_{nullptr};
+    lv_obj_t*               cursor_obj_{nullptr};
 
     // Owned widget pointers — set during start() under the LVGL lock
     SpeedWidget*   speed_widget_{nullptr};

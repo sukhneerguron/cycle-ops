@@ -12,7 +12,7 @@ App* App::s_instance = nullptr;
 App::App() 
     : cadence_service_(&ride_model_, nullptr, &event_bus_), 
       ble_consumer_(&ride_model_),
-      display_task_(display_driver_, ride_model_, event_bus_) {
+      display_task_(display_driver_, touch_driver_, ride_model_, event_bus_) {
     s_instance = this;
     
     // Create the queue for timestamp events from ISR to CadenceService

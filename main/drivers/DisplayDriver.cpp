@@ -53,7 +53,6 @@ void DisplayDriver::init(spi_host_device_t spi_host) {
   esp_lcd_panel_dev_config_t panel_config = {};
   panel_config.reset_gpio_num = (gpio_num_t)CONFIG_DISPLAY_RST;
   panel_config.bits_per_pixel = 16;
-  //panel_config.rgb_endian = LCD_RGB_DATA_ENDIAN_BIG
 
   err = esp_lcd_new_panel_st7789(io_handle_, &panel_config, &panel_handle_);
   if (err != ESP_OK) {
@@ -76,7 +75,7 @@ void DisplayDriver::init(spi_host_device_t spi_host) {
   lv_display_ = lv_display_create(DISPLAY_WIDTH, DISPLAY_HEIGHT);
   lv_display_set_user_data(lv_display_, panel_handle_);
   lv_display_set_flush_cb(lv_display_, flush_callback);
-  lv_display_set_color_format(lv_display_, LV_COLOR_FORMAT_RGB565);
+  lv_display_set_color_format(lv_display_, LV_COLOR_FORMAT_RGB565_SWAPPED);
 
   // Allocate buffer for 16-bit RGB565 display rendering
   // We use 1/10th of the screen to save SRAM (requires MALLOC_CAP_DMA for SPI DMA)
