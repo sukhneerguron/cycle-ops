@@ -3,6 +3,7 @@
 #include "ui/components/CadenceWidget.hpp"
 #include "ui/theme/Colors.hpp"
 #include "esp_log.h"
+#include "gui/ui.h"
 
 namespace ui {
 
@@ -11,18 +12,10 @@ static const char* TAG = "RideScreen";
 void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence, lv_subject_t* ride_subject) {
     ESP_LOGI(TAG, "Creating RideScreen");
 
-    lv_obj_t* screen = lv_obj_create(nullptr);
+    lv_obj_t* parent = ui_Container5;
 
-    // Black background to match the OLED
-    lv_obj_set_style_bg_color(screen, theme::Colors::Background(), 0);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
-
-    // No padding or border on the screen itself — full canvas
-    lv_obj_set_style_pad_all(screen, 0, 0);
-    lv_obj_set_style_border_width(screen, 0, 0);
-
-    // Root row — splits the screen into two equal columns
-    lv_obj_t* row = lv_obj_create(screen);
+    // Root row — splits the parent container into two equal columns
+    lv_obj_t* row = lv_obj_create(parent);
     lv_obj_set_size(row, LV_PCT(100), LV_PCT(100));
     lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(row, 0, 0);
@@ -54,8 +47,6 @@ void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence, lv_subject_t
     // Build widgets inside their respective cells
     speed.create(left_cell, ride_subject);
     cadence.create(right_cell, ride_subject);
-
-    lv_screen_load(screen);
 }
 
 } // namespace ui

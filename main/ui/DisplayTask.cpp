@@ -3,6 +3,7 @@
 #include "ui/theme/Colors.hpp"
 #include "lvgl.h"
 #include "esp_log.h"
+#include "gui/ui.h"
 
 namespace ui {
 
@@ -29,6 +30,11 @@ void DisplayTask::start() {
 
     // Build the screen while holding the LVGL lock
     driver_.lock();
+    
+    // Initialize the SquareLine Studio UI
+    ui_init();
+
+    // Attach our custom widgets to the SL container
     RideScreen::create(speed_widget_, cadence_widget_, &ride_subject_);
 
     // Create touch cursor on the active screen
