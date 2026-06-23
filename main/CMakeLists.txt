@@ -25,6 +25,11 @@ idf_component_register(
          "ui/screens/RideScreen.cpp"
          "ui/components/SpeedWidget.cpp"
          "ui/components/CadenceWidget.cpp"
+         "ui/gui/ui_HomeScreen.c"
+         "ui/gui/ui.c"
+         "ui/gui/ui_comp_hook.c"
+         "ui/gui/ui_helpers.c"
+         "ui/gui/ui_font_materialsmall.c"
     INCLUDE_DIRS ${include_dirs}
     REQUIRES esp_timer driver esp_driver_gpio bt nvs_flash esp_lcd esp_lcd_touch
 )
