@@ -44,6 +44,10 @@
  * Others
  *-----------*/
 #define LV_USE_OS   LV_OS_FREERTOS
+#define LV_USE_SYSMON           1
+#define LV_USE_PERF_MONITOR     1
+extern uint32_t my_lvgl_idle_percent(void);
+#define LV_SYSMON_GET_IDLE      my_lvgl_idle_percent
 
 /*==================
  * FONT USAGE
