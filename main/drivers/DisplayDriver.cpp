@@ -42,6 +42,8 @@ void DisplayDriver::init(spi_host_device_t spi_host) {
   io_config.lcd_param_bits = 8;
   io_config.spi_mode = 0;
   io_config.trans_queue_depth = 10;
+  io_config.on_color_trans_done = on_color_trans_done;
+  io_config.user_ctx = this;
 
   esp_err_t err = esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host,
                                            &io_config, &io_handle_);
@@ -108,6 +110,17 @@ void DisplayDriver::init(spi_host_device_t spi_host) {
 
 void DisplayDriver::lv_tick_task(void *arg) { lv_tick_inc(2); }
 
+bool DisplayDriver::on_color_trans_done(esp_lcd_panel_io_handle_t panel_io,
+                                        esp_lcd_panel_io_event_data_t *edata,
+                                        void *user_ctx) {
+  DisplayDriver *driver = static_cast<DisplayDriver *>(user_ctx);
+  lv_display_t *disp = driver->get_lv_display();
+  if (disp) {
+    lv_display_flush_ready(disp);
+  }
+  return false;
+}
+
 void DisplayDriver::flush_callback(lv_display_t *disp, const lv_area_t *area,
                                    uint8_t *px_map) {
   esp_lcd_panel_handle_t panel_handle =
@@ -115,8 +128,6 @@ void DisplayDriver::flush_callback(lv_display_t *disp, const lv_area_t *area,
   // Directly push the RGB565 pixel map via SPI DMA
   esp_lcd_panel_draw_bitmap(panel_handle, area->x1, area->y1, area->x2 + 1,
                             area->y2 + 1, px_map);
-
-  lv_display_flush_ready(disp);
 }
 
 } // namespace drivers

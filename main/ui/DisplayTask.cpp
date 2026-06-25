@@ -74,10 +74,17 @@ void DisplayTask::run() {
             next_delay_ms = 10;
         }
 
+        // Convert to ticks, ensuring we always sleep at least 1 tick if next_delay_ms > 0
+        // otherwise pdMS_TO_TICKS might round down to 0 and cause a 100% CPU busy loop.
+        TickType_t ticks_to_wait = pdMS_TO_TICKS(next_delay_ms);
+        if (ticks_to_wait == 0 && next_delay_ms > 0) {
+            ticks_to_wait = 1;
+        }
+
         // Wait for new ride data or touch interrupt — block for at most next_delay_ms
         EventBits_t bits = event_bus_.waitAny(
             kWakeEvents,
-            pdMS_TO_TICKS(next_delay_ms)
+            ticks_to_wait
         );
 
         if (bits & events::EventBus::TOUCH_INTERRUPT) {
