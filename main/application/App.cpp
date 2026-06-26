@@ -11,6 +11,7 @@ App* App::s_instance = nullptr;
 
 App::App() 
     : cadence_service_(&ride_model_, nullptr, &event_bus_), 
+      brake_light_service_(&ride_model_, &brake_light_driver_, &event_bus_),
       ble_consumer_(&ride_model_),
       display_task_(display_driver_, touch_driver_, ride_model_, event_bus_) {
     s_instance = this;
@@ -28,6 +29,7 @@ void App::start() {
 
     ESP_LOGI(TAG, "Starting services...");
     cadence_service_.start();
+    brake_light_service_.start();
 
     ESP_LOGI(TAG, "Starting consumers...");
     display_task_.start();
@@ -43,6 +45,7 @@ void App::setup_hardware() {
     touch_driver_.init(i2c_driver_.get_bus_handle(), event_bus_);
     touch_driver_.register_lvgl_indev(display_driver_.get_lv_display());
     
+    brake_light_driver_.init();
     drivers::GPIODriver::init(sensor_queue_);
     drivers::BLEDriver::init("Cycle-Ops", 
         [this]() { ble_consumer_.init_services(); },

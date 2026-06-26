@@ -15,12 +15,14 @@ idf_component_register(
          "application/App.cpp"
          "consumers/ble/BLEConsumer.cpp"
          "drivers/BLEDriver.cpp"
+         "drivers/BrakeLightDriver.cpp"
          "drivers/GPIODriver.cpp"
          "drivers/I2CDriver.cpp"
          "drivers/SPIDriver.cpp"
          "drivers/DisplayDriver.cpp"
          "drivers/TouchDriver.cpp"
          "services/cadence/CadenceService.cpp"
+         "services/brakelight/BrakeLightService.cpp"
          "ui/DisplayTask.cpp"
          "ui/screens/RideScreen.cpp"
          "ui/components/SpeedWidget.cpp"
@@ -30,6 +32,11 @@ idf_component_register(
          "ui/gui/ui_comp_hook.c"
          "ui/gui/ui_helpers.c"
          "ui/gui/ui_font_materialsmall.c"
+         "ui/gui/ui_font_PlusJakartaSans.c"
+         "ui/gui/ui_Screen1.c"
+         "ui/gui/ui_HomeScreen.c"
+         "ui/gui/ui_theme_manager.c"
+         "ui/gui/ui_themes.c"
     INCLUDE_DIRS ${include_dirs}
-    REQUIRES esp_timer driver esp_driver_gpio bt nvs_flash esp_lcd esp_lcd_touch
+    REQUIRES esp_timer driver esp_driver_gpio esp_driver_ledc bt nvs_flash esp_lcd esp_lcd_touch
 )

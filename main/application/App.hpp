@@ -6,7 +6,9 @@
 #include "events/EventBus.hpp"
 #include "models/RideModel.hpp"
 #include "services/cadence/CadenceService.hpp"
+#include "services/brakelight/BrakeLightService.hpp"
 #include "consumers/ble/BLEConsumer.hpp"
+#include "drivers/BrakeLightDriver.hpp"
 #include "drivers/I2CDriver.hpp"
 #include "drivers/SPIDriver.hpp"
 #include "drivers/DisplayDriver.hpp"
@@ -33,8 +35,10 @@ private:
     QueueHandle_t sensor_queue_{nullptr};
 
     services::CadenceService cadence_service_;
+    services::BrakeLightService brake_light_service_;
     consumers::BLEConsumer ble_consumer_;
 
+    drivers::BrakeLightDriver brake_light_driver_;
     drivers::I2CDriver i2c_driver_;
     drivers::SPIDriver spi_driver_;
     drivers::DisplayDriver display_driver_;
