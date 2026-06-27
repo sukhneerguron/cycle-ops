@@ -32,11 +32,15 @@ idf_component_register(
          "ui/gui/ui_comp_hook.c"
          "ui/gui/ui_helpers.c"
          "ui/gui/ui_font_materialsmall.c"
-         "ui/gui/ui_font_PlusJakartaSans.c"
-         "ui/gui/ui_Screen1.c"
+         "ui/gui/ui_Screen2.c"
+         "ui/gui/ui_Screen3.c"
          "ui/gui/ui_HomeScreen.c"
          "ui/gui/ui_theme_manager.c"
          "ui/gui/ui_themes.c"
+         "ui/gui/ui_font_JakartaBigLBL.c"
+         "ui/gui/ui_font_JakartaSmlLBL.c"
+         "ui/gui/ui_font_materialsmall.c"
+         "ui/gui/ui_font_JakartaText.c"
     INCLUDE_DIRS ${include_dirs}
     REQUIRES esp_timer driver esp_driver_gpio esp_driver_ledc bt nvs_flash esp_lcd esp_lcd_touch
 )

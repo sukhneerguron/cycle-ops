@@ -24,9 +24,13 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
+#include "ui_theme_manager.h"
+#include "ui_themes.h"
 
 ///////////////////// SCREENS ////////////////////
 #include "ui_HomeScreen.h"
+#include "ui_Screen3.h"
+#include "ui_Screen2.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -34,7 +38,10 @@ extern "C" {
 extern lv_obj_t *ui____initial_actions0;
 
 // FONTS
+LV_FONT_DECLARE( ui_font_JakartaBigLBL);
+LV_FONT_DECLARE( ui_font_JakartaSmlLBL);
 LV_FONT_DECLARE( ui_font_materialsmall);
+LV_FONT_DECLARE( ui_font_JakartaText);
 
 // UI INIT
 void ui_init(void);
