@@ -31,6 +31,7 @@ public:
 private:
     static void lv_tick_task(void *arg);
     static void flush_callback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
+    static bool on_color_trans_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx);
 
     esp_lcd_panel_io_handle_t io_handle_{nullptr};
     esp_lcd_panel_handle_t panel_handle_{nullptr};

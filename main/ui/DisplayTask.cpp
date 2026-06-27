@@ -1,9 +1,9 @@
 #include "DisplayTask.hpp"
 #include "ui/screens/RideScreen.hpp"
-#include "ui/components/SpeedWidget.hpp"
-#include "ui/components/CadenceWidget.hpp"
+#include "ui/theme/Colors.hpp"
 #include "lvgl.h"
 #include "esp_log.h"
+#include "gui/ui.h"
 
 namespace ui {
 
@@ -25,17 +25,23 @@ DisplayTask::~DisplayTask() {
 void DisplayTask::start() {
     ESP_LOGI(TAG, "Building initial UI");
 
+    // Init subject BEFORE creating widgets
+    lv_subject_init_pointer(&ride_subject_, nullptr);
+
     // Build the screen while holding the LVGL lock
     driver_.lock();
-    RideWidgets widgets = RideScreen::create();
-    speed_widget_   = widgets.speed;
-    cadence_widget_ = widgets.cadence;
+    
+    // Initialize the SquareLine Studio UI
+    ui_init();
+
+    // Attach our custom widgets to the SL container
+    RideScreen::create(speed_widget_, cadence_widget_, &ride_subject_);
 
     // Create touch cursor on the active screen
     lv_obj_t* cursor = lv_obj_create(lv_screen_active());
     lv_obj_set_size(cursor, 15, 15);
     lv_obj_set_style_radius(cursor, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_color(cursor, lv_color_hex(0x0000FF), 0); //B,R,G
+    lv_obj_set_style_bg_color(cursor, theme::Colors::Cursor(), 0);
     lv_obj_set_style_bg_opa(cursor, LV_OPA_70, 0);
     lv_obj_set_style_border_width(cursor, 0, 0);
     lv_obj_clear_flag(cursor, LV_OBJ_FLAG_CLICKABLE);
@@ -68,10 +74,17 @@ void DisplayTask::run() {
             next_delay_ms = 10;
         }
 
+        // Convert to ticks, ensuring we always sleep at least 1 tick if next_delay_ms > 0
+        // otherwise pdMS_TO_TICKS might round down to 0 and cause a 100% CPU busy loop.
+        TickType_t ticks_to_wait = pdMS_TO_TICKS(next_delay_ms);
+        if (ticks_to_wait == 0 && next_delay_ms > 0) {
+            ticks_to_wait = 1;
+        }
+
         // Wait for new ride data or touch interrupt — block for at most next_delay_ms
         EventBits_t bits = event_bus_.waitAny(
             kWakeEvents,
-            pdMS_TO_TICKS(next_delay_ms)
+            ticks_to_wait
         );
 
         if (bits & events::EventBus::TOUCH_INTERRUPT) {
@@ -82,12 +95,11 @@ void DisplayTask::run() {
         if (bits & events::EventBus::RIDE_DATA_UPDATED) {
             event_bus_.clear(events::EventBus::RIDE_DATA_UPDATED);
 
-            // Snapshot the model and push to all widgets under the LVGL lock
-            models::RideData data = model_.get();
+            // Snapshot the model and push to all widgets via subject
+            ride_data_ = model_.get();
 
             driver_.lock();
-            if (speed_widget_)   speed_widget_->update(data);
-            if (cadence_widget_) cadence_widget_->update(data);
+            lv_subject_set_pointer(&ride_subject_, &ride_data_);
             driver_.unlock();
         }
     }

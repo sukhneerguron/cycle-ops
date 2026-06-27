@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../work/cycle/esp-idf-st7789"
+		},
+		{
+			"path": "../Downloads/2.8inch_Capacitive_Touch_LCD"
 		}
 	],
 	"settings": {

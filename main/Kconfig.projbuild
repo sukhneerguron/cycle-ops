@@ -48,4 +48,8 @@ config TOUCH_RST
     int "Touch Reset Pin"
     default 4
 
+config BRAKE_LIGHT_PIN
+    int "Brake Light PWM Pin"
+    default 14
+
 endmenu

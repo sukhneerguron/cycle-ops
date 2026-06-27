@@ -1,27 +1,21 @@
 #include "RideScreen.hpp"
 #include "ui/components/SpeedWidget.hpp"
 #include "ui/components/CadenceWidget.hpp"
+#include "ui/theme/Colors.hpp"
 #include "esp_log.h"
+#include "gui/ui.h"
 
 namespace ui {
 
 static const char* TAG = "RideScreen";
 
-RideWidgets RideScreen::create() {
+void RideScreen::create(SpeedWidget& speed, CadenceWidget& cadence, lv_subject_t* ride_subject) {
     ESP_LOGI(TAG, "Creating RideScreen");
 
-    lv_obj_t* screen = lv_obj_create(nullptr);
+    lv_obj_t* parent = ui_Container5;
 
-    // Black background to match the OLED
-    lv_obj_set_style_bg_color(screen, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
-
-    // No padding or border on the screen itself — full 128×64 canvas
-    lv_obj_set_style_pad_all(screen, 0, 0);
-    lv_obj_set_style_border_width(screen, 0, 0);
-
-    // Root row — splits the screen into two equal columns
-    lv_obj_t* row = lv_obj_create(screen);
+    // Root row — splits the parent container into two equal columns
+    lv_obj_t* row = lv_obj_create(parent);
     lv_obj_set_size(row, LV_PCT(100), LV_PCT(100));
     lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(row, 0, 0);
@@ -51,12 +45,8 @@ RideWidgets RideScreen::create() {
     lv_obj_remove_flag(right_cell, LV_OBJ_FLAG_SCROLLABLE);
 
     // Build widgets inside their respective cells
-    SpeedWidget*   speed_widget   = SpeedWidget::create(left_cell);
-    CadenceWidget* cadence_widget = CadenceWidget::create(right_cell);
-
-    lv_screen_load(screen);
-
-    return RideWidgets{speed_widget, cadence_widget};
+    speed.create(left_cell, ride_subject);
+    cadence.create(right_cell, ride_subject);
 }
 
 } // namespace ui

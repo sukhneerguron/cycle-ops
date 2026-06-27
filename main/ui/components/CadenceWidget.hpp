@@ -11,20 +11,20 @@ namespace ui {
 /// DisplayTask calls update() (under the LVGL lock) whenever new
 /// ride data arrives. No calculation is performed here — only
 /// formatting for display.
+///
+/// Owned by DisplayTask as a static member — no heap allocation.
 class CadenceWidget {
 public:
-    /// Build and attach this widget to the given parent object.
-    /// Must be called while the LVGL mutex is held.
-    /// @returns a pointer to this widget so DisplayTask can call update().
-    static CadenceWidget* create(lv_obj_t* parent);
+    CadenceWidget() = default;
 
-    /// Refresh the displayed value from a new model snapshot.
+    /// Build LVGL objects under the given parent.
     /// Must be called while the LVGL mutex is held.
-    void update(const models::RideData& data);
+    void create(lv_obj_t* parent, lv_subject_t* ride_subject);
+
+    /// LVGL observer callback for ride data updates.
+    static void onRideDataObserved(lv_observer_t* observer, lv_subject_t* subject);
 
 private:
-    explicit CadenceWidget(lv_obj_t* parent);
-
     lv_obj_t* container_{nullptr};
     lv_obj_t* cadence_label_{nullptr};
     lv_obj_t* unit_label_{nullptr};
