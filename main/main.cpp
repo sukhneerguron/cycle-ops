@@ -74,5 +74,5 @@ extern "C" void app_main() {
     app.start();
 
     // Start a debug task to print CPU usage stats every 5 seconds
-    xTaskCreate(stats_task, "stats_task", 4096, NULL, 1, NULL);
+    //xTaskCreate(stats_task, "stats_task", 4096, NULL, 1, NULL);
 }
