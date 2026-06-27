@@ -84,7 +84,7 @@ void DisplayDriver::init(spi_host_device_t spi_host) {
   // Allocate buffer for 16-bit RGB565 display rendering
   // We use 1/10th of the screen to save SRAM (requires MALLOC_CAP_DMA for SPI
   // DMA)
-  size_t buf_size = DISPLAY_WIDTH * (DISPLAY_HEIGHT / 10) * 2;
+  size_t buf_size = DISPLAY_WIDTH * (DISPLAY_HEIGHT / 4) * 2;
   void *buf1 = heap_caps_malloc(buf_size, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
   void *buf2 = heap_caps_malloc(buf_size, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 
